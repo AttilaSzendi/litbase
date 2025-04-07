@@ -42,7 +42,7 @@ class TaskStoreTest extends TestCase
     {
         /** @var Task $task */
         $task = Task::factory()
-            ->has(User::factory()->count(1))
+            ->has(User::factory()->count(1), 'assignedUsers')
                 ->create([
                     'estimated_minutes' => self::FOUR_HOURS_IN_MINUTES,
                     'scheduled_day' => '2025-04-02',
@@ -52,18 +52,18 @@ class TaskStoreTest extends TestCase
             'name' => 'Új feladat',
             'estimated_minutes' => self::FOUR_HOURS_IN_MINUTES,
             'scheduled_day' => '2025-04-02',
-            'assigned_user_ids' => [$task->users()->first()->id],
+            'assigned_user_ids' => [$task->assignedUsers()->first()->id],
             'priority_id' => 1,
-        ])->dump();
+        ]);
 
         $this->assertDatabaseHas('task_user', [
             'task_id' => $task->id,
-            'user_id' => $task->users()->first()->id,
+            'user_id' => $task->assignedUsers()->first()->id,
         ]);
 
         $this->assertDatabaseHas('task_user', [
             'task_id' => $task->id + 1,
-            'user_id' => $task->users()->first()->id,
+            'user_id' => $task->assignedUsers()->first()->id,
         ]);
 
         $response->assertCreated();
@@ -73,7 +73,7 @@ class TaskStoreTest extends TestCase
     {
         /** @var Task $task */
         $task = Task::factory()
-            ->has(User::factory()->count(1))
+            ->has(User::factory()->count(2), 'assignedUsers')
             ->create([
                 'estimated_minutes' => self::FOUR_HOURS_IN_MINUTES,
                 'scheduled_day' => '2025-04-02',
@@ -83,11 +83,11 @@ class TaskStoreTest extends TestCase
             'name' => 'Túl sok munka',
             'estimated_minutes' => self::FIVE_HOURS_IN_MINUTES,
             'scheduled_day' => '2025-04-02',
-            'assigned_user_ids' => [$task->users()->first()->id],
+            'assigned_user_ids' => $task->assignedUsers()->pluck('users.id'),
             'priority_id' => 1,
         ]);
 
         $response->assertUnprocessable()
-        ->assertJsonValidationErrors(['assigned_user_ids']);
+        ->assertJsonValidationErrors(['assignee_overload']);
     }
 }

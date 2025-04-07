@@ -45,21 +45,25 @@ class TaskRequest extends FormRequest
 
         foreach ($assignedUserIds as $userId) {
             $totalMinutes = Task::query()
-                ->whereHas('users', function ($query) use ($userId) {
+                ->where('id', '<>', $this->route('task')?->id)
+                ->whereHas('assignedUsers', function ($query) use ($userId) {
                     $query->where('users.id', $userId);
                 })->where('scheduled_day', $scheduledDay)
                 ->sum('estimated_minutes');
 
             if ($totalMinutes + $estimatedMinutes > self::EIGHT_HOURS_IN_MINUTES) {
-                $errors[$userId] = [
-                    "message" =>"A felhasználó számára nincs elég kapacitás ezen a napon.",
-                    "remaining_minutes" => self::EIGHT_HOURS_IN_MINUTES - $totalMinutes,
+                $errors[] = [
+                    "userId" => $userId,
+                    "message" => "A felhasználó számára nincs elég kapacitás ezen a napon.",
+                    "remainingMinutes" => self::EIGHT_HOURS_IN_MINUTES - $totalMinutes,
                 ];
             }
         }
 
         if (!empty($errors)) {
-            $validator->errors()->add('assigned_user_ids', $errors);
+            foreach ($errors as $error) {
+                $validator->errors()->add('assignee_overload', $error);
+            }
         }
     }
 }

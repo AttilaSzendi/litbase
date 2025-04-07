@@ -20,7 +20,7 @@ class TaskIndexTest extends TestCase
         Task::factory()->create(['scheduled_day' => $monday]);
         Task::factory()->create(['scheduled_day' => $tuesday]);
 
-        $response = $this->getJson(route('task.index'))->dump();
+        $response = $this->getJson(route('task.index'));
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -28,6 +28,24 @@ class TaskIndexTest extends TestCase
                     $monday->toDateString(),
                     $tuesday->toDateString(),
                 ],
+                'startOfWeek',
+                'endOfWeek',
+            ]);
+    }
+
+    public function test_it_returns_tasks_of_the_week_of_the_specified_date(): void
+    {
+        $monday = Carbon::now()->startOfWeek(CarbonInterface::MONDAY);
+        $tuesday = $monday->copy()->addDay();
+
+        Task::factory()->create(['scheduled_day' => $monday]);
+        Task::factory()->create(['scheduled_day' => $tuesday]);
+
+        $response = $this->getJson(route('task.index', ['date' => now()->addWeek()->toDateString()]));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [],
                 'startOfWeek',
                 'endOfWeek',
             ]);

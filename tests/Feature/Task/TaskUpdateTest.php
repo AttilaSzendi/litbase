@@ -36,7 +36,7 @@ class TaskUpdateTest extends TestCase
     {
         /** @var Task $task */
         $task = Task::factory()
-            ->has(User::factory()->count(1))
+            ->has(User::factory()->count(1), 'assignedUsers')
             ->create([
                 'estimated_minutes' => self::FOUR_HOURS_IN_MINUTES,
                 'scheduled_day' => '2025-04-02',
@@ -46,11 +46,11 @@ class TaskUpdateTest extends TestCase
             'name' => 'Túl sok munka',
             'estimated_minutes' => self::NINE_HOURS_IN_MINUTES,
             'scheduled_day' => '2025-04-02',
-            'assigned_user_ids' => [$task->users()->first()->id],
+            'assigned_user_ids' => [$task->assignedUsers()->first()->id],
             'priority_id' => 1,
-        ])->dump();
+        ]);
 
         $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['assigned_user_ids']);
+            ->assertJsonValidationErrors(['assignee_overload']);
     }
 }

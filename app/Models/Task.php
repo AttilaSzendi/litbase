@@ -17,7 +17,7 @@ use Ramsey\Collection\Collection;
  * @property Carbon scheduled_day
  * @property Carbon created_at
  * @property Carbon updated_at
- * @property Collection|User[] users
+ * @property Collection|User[] assignedUsers
  */
 class Task extends Model
 {
@@ -25,9 +25,9 @@ class Task extends Model
 
     protected $fillable = ['name', 'estimated_minutes', 'completed_at', 'priority_id', 'scheduled_day'];
 
-    public function users(): BelongsToMany
+    public function assignedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'task_user', 'task_id', 'user_id');
     }
 
     protected function casts(): array

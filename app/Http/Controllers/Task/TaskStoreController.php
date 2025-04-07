@@ -13,7 +13,7 @@ class TaskStoreController extends Controller
     {
         $task = Task::query()->create($request->validated());
 
-        $task->users()->sync($request->input('assigned_user_ids'));
+        $task->assignedUsers()->sync($request->input('assigned_user_ids'));
 
         return new TaskResource($task);
     }

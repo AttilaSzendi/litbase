@@ -13,6 +13,8 @@ class TaskUpdateController extends Controller
     {
         $task->update($request->validated());
 
+        $task->assignedUsers()->sync($request->input('assigned_user_ids'));
+
         return new TaskResource($task);
     }
 }

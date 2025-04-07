@@ -18,10 +18,11 @@ class TaskResource extends JsonResource
             'name' => $this->name,
             'estimatedMinutes' => $this->estimated_minutes,
             'completedAt' => $this->completed_at,
-            'priority' => $this->priority_id,
+            'priorityId' => $this->priority_id,
             'scheduledDay' => $this->scheduled_day,
             'createdAt' => $this->created_at,
             'updatedAt' => $this->updated_at,
+            'assignedUsers' => UserResource::collection($this->whenLoaded('assignedUsers')),
         ];
     }
 }

@@ -23,6 +23,7 @@ class TaskIndexController extends Controller
         $tasks = Task::query()
             ->whereBetween('scheduled_day', [$startOfWeek, $endOfWeek])
             ->orderBy('scheduled_day')
+            ->with('assignedUsers')
             ->get()
             ->groupBy(fn ($task) => Carbon::parse($task->scheduled_day)->toDateString())
             ->map(fn ($tasks) => TaskResource::collection($tasks));
